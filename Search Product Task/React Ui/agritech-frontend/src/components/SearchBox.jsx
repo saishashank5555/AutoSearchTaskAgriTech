@@ -1,12 +1,8 @@
-/*
-Updated SearchBox.jsx with "No results found" message
-*/
-
 import React, { useState, useEffect, useRef } from 'react';
 import SuggestionList from './SuggestionList';
 import { fetchSuggestions } from '../services/api';
 
-export default function SearchBox({ onSelect }) {
+export default function SearchBox() {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [open, setOpen] = useState(false);
@@ -25,11 +21,11 @@ export default function SearchBox({ onSelect }) {
     }
 
     timer.current = setTimeout(async () => {
-      const result = await fetchSuggestions(query.trim());
-      setSuggestions(result);
+      const listOfresult = await fetchSuggestions(query.trim());
+      setSuggestions(listOfresult);
       setOpen(true);
       setActive(-1);
-      setNoResults(result.length === 0);
+      setNoResults(listOfresult.length === 0);
     }, 300);
   }, [query]);
 
@@ -53,12 +49,12 @@ export default function SearchBox({ onSelect }) {
   };
 
   return (
-    <div style={{ position: 'relative', flex: 1 }}>
+    <div style={{ position: 'relative', flex: 1 , background:'red'}}>
       <form onSubmit={handleSubmit} style={{ display: 'flex'}}>
         <input
           type="text"
-          value={query}
           onChange={(e) => setQuery(e.target.value)}
+          value={query}
           onKeyDown={handleKey}
           onFocus={() => suggestions.length && setOpen(true)}
           placeholder="Search products, e.g. Rice"
