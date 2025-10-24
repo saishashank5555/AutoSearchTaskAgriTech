@@ -1,3 +1,7 @@
+/*
+Updated SearchBox.jsx with "No results found" message
+*/
+
 import React, { useState, useEffect, useRef } from 'react';
 import SuggestionList from './SuggestionList';
 import { fetchSuggestions } from '../services/api';
@@ -21,11 +25,11 @@ export default function SearchBox({ onSelect }) {
     }
 
     timer.current = setTimeout(async () => {
-      const listOfresult = await fetchSuggestions(query.trim());
-      setSuggestions(listOfresult);
+      const result = await fetchSuggestions(query.trim());
+      setSuggestions(result);
       setOpen(true);
       setActive(-1);
-      setNoResults(listOfresult.length === 0);
+      setNoResults(result.length === 0);
     }, 300);
   }, [query]);
 
@@ -35,20 +39,27 @@ export default function SearchBox({ onSelect }) {
     onSelect && onSelect(item);
   };
 
+  const handleKey = (e) => {
+    if (!open) return;
+    if (e.key === 'ArrowDown') setActive((i) => Math.min(i + 1, suggestions.length - 1));
+    if (e.key === 'ArrowUp') setActive((i) => Math.max(i - 1, 0));
+    if (e.key === 'Enter' && suggestions[active]) selectItem(suggestions[active]);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (query.trim()) onSelect && onSelect(query.trim());
+    if (query.trim()) onSelect(query.trim());
     setOpen(false);
-    console.log(query);
   };
 
   return (
-    <div style={{ position: 'relative', flex: 1 , background:'red'}}>
+    <div style={{ position: 'relative', flex: 1 }}>
       <form onSubmit={handleSubmit} style={{ display: 'flex'}}>
         <input
           type="text"
-          onChange={(e) => setQuery(e.target.value)}
           value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKey}
           onFocus={() => suggestions.length && setOpen(true)}
           placeholder="Search products, e.g. Rice"
           style={{ flex: 1, padding: '8px', border: '1px solid #ccc', borderRadius: '5px 0 0 5px', outline: 'none' }}
